@@ -12,7 +12,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List _toDoList = [];
+  final _todoController = TextEditingController();
+
+  List<Map<String, dynamic>> _toDoList = [];
+
+  void _addTask() {
+    Map<String, dynamic> newTask = {};
+    newTask["title"] = _todoController.text;
+    newTask["ok"] = false;
+
+    setState(() {
+      _toDoList.add(newTask);
+    });
+
+    _todoController.text = "";
+  }
 
   Future<File> _getFile() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -43,8 +57,54 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Lista de Tarefas"),
+        backgroundColor: Colors.blueAccent,
+        centerTitle: true,
       ),
-      body: Container(),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _todoController,
+                    decoration: const InputDecoration(
+                        labelText: "Nova Tarefa",
+                        labelStyle: TextStyle(color: Colors.blueAccent)),
+                  ),
+                ),
+                FloatingActionButton(
+                  child: const Icon(Icons.add),
+                  backgroundColor: Colors.blueAccent,
+                  onPressed: _addTask,
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+                padding: const EdgeInsets.only(top: 16),
+                itemCount: _toDoList.length,
+                itemBuilder: (context, index) {
+                  var item = _toDoList[index];
+
+                  return CheckboxListTile(
+                    title: Text(item["title"]),
+                    value: item["ok"],
+                    secondary: CircleAvatar(
+                      child: Icon(item["ok"] ? Icons.check : Icons.error),
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        item["ok"] = value;
+                      });
+                    },
+                  );
+                }),
+          )
+        ],
+      ),
     );
   }
 }
