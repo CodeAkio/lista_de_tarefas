@@ -14,7 +14,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _todoController = TextEditingController();
 
-  List<Map<String, dynamic>> _toDoList = [];
+  List _toDoList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    print("Iniciou");
+
+    _readData().then((data) {
+      setState(() {
+        _toDoList = json.decode(data!);
+        print("Leu iniciar");
+      });
+    });
+  }
 
   void _addTask() {
     Map<String, dynamic> newTask = {};
@@ -26,6 +39,8 @@ class _HomePageState extends State<HomePage> {
     });
 
     _todoController.text = "";
+
+    _saveData();
   }
 
   Future<File> _getFile() async {
@@ -39,6 +54,7 @@ class _HomePageState extends State<HomePage> {
     var data = json.encode(_toDoList);
     final file = await _getFile();
     var updatedFile = file.writeAsString(data);
+    print("salvou");
 
     return updatedFile;
   }
@@ -46,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   Future<String?> _readData() async {
     try {
       final file = await _getFile();
+      print(file.readAsString());
       return file.readAsString();
     } catch (e) {
       return null;
@@ -98,6 +115,7 @@ class _HomePageState extends State<HomePage> {
                     onChanged: (value) {
                       setState(() {
                         item["ok"] = value;
+                        _saveData();
                       });
                     },
                   );
