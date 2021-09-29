@@ -71,6 +71,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _refresh() async {
+    setState(() {
+      _toDoList.sort((elem1, elem2) {
+        if (elem1["ok"] && !elem2["ok"]) {
+          return 1;
+        } else if (!elem1["ok"] && elem2["ok"]) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
+    });
+
+    _saveData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,10 +118,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-                padding: const EdgeInsets.only(top: 16),
-                itemCount: _toDoList.length,
-                itemBuilder: buildItem),
+            child: RefreshIndicator(
+              onRefresh: _refresh,
+              child: ListView.builder(
+                  padding: const EdgeInsets.only(top: 16),
+                  itemCount: _toDoList.length,
+                  itemBuilder: buildItem),
+            ),
           )
         ],
       ),
